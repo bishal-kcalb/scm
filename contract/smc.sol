@@ -160,6 +160,7 @@ contract SupplyChain {
 
     constructor(address _owner){
         MOH = _owner;
+        UserRole[_owner] = Role.MOH;
     }
 
     function changeMOHAddres(address _address) external{
@@ -260,6 +261,11 @@ contract SupplyChain {
     function verifyMedicine(uint256 _id) external {
         require(msg.sender == MOH, "You are not the MOH");
         MedicineDetails[_id].verified = true;
+    }
+
+    function verifySupplier(address _address) external {
+        require(msg.sender == MOH, "You are not the MOH");
+        SupplierDetails[_address].verified = true;
     }
 
     function sellMedToSupplier(address _supplierId, uint256 _medId) external {
