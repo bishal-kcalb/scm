@@ -93,11 +93,11 @@ const switchNetwork = async (targetChainId) => {
                     params: [
                         {
                             chainId: targetChainId,
-                            chainName: "Supply",
+                            chainName: "testnet",
                             rpcUrls: ["http://127.0.0.1:8545"],
                             nativeCurrency: {
                                 name: "Supply",
-                                symbol: "scm",
+                                symbol: "ETH",
                                 decimals: 18,
                             },
                             blockExplorerUrls: ["https://inoai.live"],

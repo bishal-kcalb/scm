@@ -18,7 +18,7 @@
                         <Card :card="card"/>
                       </div>
                     </div>
-                    <ButtonPrimary :title="'View Cart item'" @click="openCart=true"/>
+                    <ButtonPrimary v-if="role != 'MOH'" :title="'View Cart item'" @click="openCart=true"/>
                     <CartModal @update="handleCartUpdate" :col="cartItemCol" :row="cartItemRow" :isOpen="openCart"/>
                 <UDivider label="" :ui="{border:{base:'border-[#F5F5F5] dark:border-[#F5F5F5]'}}" />
         

@@ -1,13 +1,17 @@
 <template>
     <div>
-        <UModal
+        <UModal :fullscreen="true"
         v-model="props.isOpen"
         prevent-close
         :ui="{
-          body: { background: 'bg-white' },
-          background: 'bg-white',
+          body: { background: 'bg-white dark:bg-white' },
+          background: 'bg-white dark:bg-white',
           rounded: 'rounded-xl',
-          base: 'rounded-xl',
+          base: 'rounded-xl bg-white',
+          overlay:{background:'bg-white',base:'bg-white dark:bg-white'},
+          container:'bg-white',
+          wrapper:'bg-white',
+          inner:'bg-white'
         }"
       >
         <UCard

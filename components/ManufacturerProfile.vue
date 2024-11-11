@@ -219,7 +219,8 @@ const getSupplierList = async () => {
             email: data.email,
             joinedDate: data.joinedDate,
             verified: data.verified,
-            addedBy: data.addedBy
+            addedBy: data.addedBy,
+            walletAddress: data.walletAddress
         }
         tableData.value.push(rowData)
 
@@ -337,3 +338,6 @@ onBeforeMount(() => {
     getManufacturerSoldMedicineList()
 })
 </script>
+
+
+

@@ -1,5 +1,6 @@
 <template>
     <div class="text-black">
+        <MohProfile v-if="props.userRole === 'MOH'"/>
         <ManufacturerProfile v-if="props.userRole === 'Manufacturer'" />
         <SupplierProfile v-if="props.userRole === 'Supplier'" />
     </div>
