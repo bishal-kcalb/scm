@@ -74,6 +74,14 @@
         <div>
             <div>
                 <div class="">
+                            <h1 class="text-[#604CC3] text-3xl">Order List</h1>
+                        </div>
+                <Table :columns="colOrder" :td="tableDataOrder" />
+            </div>
+        </div>
+        <div>
+            <div>
+                <div class="">
                             <h1 class="text-[#604CC3] text-3xl">Supplier List</h1>
                         </div>
                 <Table :columns="col" :td="tableData" />
@@ -171,6 +179,8 @@ const modalTitle = ref('Sell Medicine')
 const buttonTitleMedicine='Sell Medicine'
 const col = ref([])
 const tableData = ref([])
+const colOrder = ref([])
+const tableDataOrder = ref([])
 const totalSupplier = ref(0)
 const totalMedicine = ref(0)
 const tableDataMedicine = ref([])
@@ -331,11 +341,44 @@ const sellMedicine = async(medId)=>{
 }
 
 
+const getManufacturerOrderList = async ()=>{
+    const orderList = await contractScm.methods.getManufacturerOrderList(accounts[0]).call();
+    console.log("manu orderlist", orderList)
+    orderList.map((data) => {
+        const filteredKeys = Object.keys(data).filter((key, index) => {
+            return key !== '__length__' && isNaN(key);
+        })
+
+        filteredKeys.forEach((data) => {
+            const colObj = {
+                key: data,
+                label: data.toUpperCase()
+            }
+            // Ensure no duplicates are added
+            if (!colOrder.value.some(item => item.key === colObj.key)) {
+                colOrder.value.push(colObj);
+            }
+            
+        })
+        // col.value.push({key:'action',label:"Action"})
+        const rowData = {
+            medId: String(data.medId),
+            orderId: Number(data.orderId),
+            orderer: data.orderer,
+            status: data.status,
+            orderTo: data.orderTo
+        }
+        tableDataOrder.value.push(rowData)
+
+    })
+}
+
 onBeforeMount(() => {
     getSupplierList()
     getMedicineList()
     getManufacturerDetail()
     getManufacturerSoldMedicineList()
+    getManufacturerOrderList()
 })
 </script>
 

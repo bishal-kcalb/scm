@@ -71,7 +71,7 @@
         <div>
             <div>
                 <div class="">
-                            <h1 class="text-[#604CC3] text-3xl">Manufacturer List</h1>
+                            <h1 class="text-[#604CC3] text-3xl">Order List</h1>
                         </div>
                 <Table :columns="col" :td="tableData" :buttonTitle="buttonTitle" :tableFunc="viewManufatcurerDetails"/>
             </div>
@@ -187,9 +187,9 @@ const accounts = await window.ethereum.request({
         method:'eth_requestAccounts'
     })
 
-const getManufacturerList = async () => {
+const myOrder = async () => {
     
-    const supplierList = await contractScm.methods.getSupplierManufacturerList(accounts[0]).call();
+    const supplierList = await contractScm.methods.getSupplierOrderList(accounts[0]).call();
     totalSupplier.value = supplierList.length
     supplierList.map((data) => {
         const filteredKeys = Object.keys(data).filter((key, index) => {
@@ -209,14 +209,11 @@ const getManufacturerList = async () => {
         })
         // col.value.push({key:'action',label:"Action"})
         const rowData = {
-            id: data.id,
-            name: data.name,
-            location: data.location,
-            contact: data.contact,
-            email: data.email,
-            joinedDate: data.joinedDate,
-            verified: data.verified,
-            addedBy: data.addedBy
+            medId: String(data.medId),
+            orderId: Number(data.orderId),
+            orderer: data.orderer,
+            status: data.status,
+            orderTo: data.orderTo
         }
         tableData.value.push(rowData)
 
@@ -333,7 +330,7 @@ const viewManufatcurerDetails = async (id)=>{
 
 
 onBeforeMount(() => {
-    getManufacturerList()
+    myOrder()
     getMedicineList()
     getSupplierDetail()
     getManufacturerSoldMedicineList()

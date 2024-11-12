@@ -1,4 +1,4 @@
-export const scmContract = '0xd656dFAeAe3aEeffF9699793A6D3E620782687ca'
+export const scmContract = '0xCcce498C06760d3113863E4d78eB8df5520bD364'
 export const scmAbi = [
 	{
 		"inputs": [
@@ -9,6 +9,44 @@ export const scmAbi = [
 			}
 		],
 		"name": "acceptOrder",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_location",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_contact",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_email",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_type",
+				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "_distributorAddress",
+				"type": "address"
+			}
+		],
+		"name": "addDistributor",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -108,6 +146,46 @@ export const scmAbi = [
 		"type": "function"
 	},
 	{
+		"inputs": [],
+		"name": "addShipper",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "_walletAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "_email",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_contact",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_location",
+				"type": "string"
+			}
+		],
+		"name": "addShipper",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "string",
@@ -156,22 +234,12 @@ export const scmAbi = [
 	{
 		"inputs": [
 			{
-				"internalType": "address",
-				"name": "_address",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256[]",
-				"name": "_medArray",
-				"type": "uint256[]"
-			},
-			{
 				"internalType": "uint256",
 				"name": "_orderId",
 				"type": "uint256"
 			}
 		],
-		"name": "confirmOrder",
+		"name": "deliverOrder",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -184,7 +252,7 @@ export const scmAbi = [
 				"type": "uint256"
 			}
 		],
-		"name": "deliverOrder",
+		"name": "ordererVerification",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -203,24 +271,6 @@ export const scmAbi = [
 			}
 		],
 		"name": "placeOrder",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_address",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256[]",
-				"name": "_medArray",
-				"type": "uint256[]"
-			}
-		],
-		"name": "sellMedInBulk",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -534,6 +584,16 @@ export const scmAbi = [
 						"type": "address"
 					},
 					{
+						"internalType": "address",
+						"name": "shipper",
+						"type": "address"
+					},
+					{
+						"internalType": "bool",
+						"name": "ordererVerification",
+						"type": "bool"
+					},
+					{
 						"internalType": "enum SupplyChain.Status",
 						"name": "status",
 						"type": "uint8"
@@ -733,6 +793,16 @@ export const scmAbi = [
 						"internalType": "address",
 						"name": "orderer",
 						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "shipper",
+						"type": "address"
+					},
+					{
+						"internalType": "bool",
+						"name": "ordererVerification",
+						"type": "bool"
 					},
 					{
 						"internalType": "enum SupplyChain.Status",
@@ -1177,6 +1247,16 @@ export const scmAbi = [
 						"internalType": "address",
 						"name": "orderer",
 						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "shipper",
+						"type": "address"
+					},
+					{
+						"internalType": "bool",
+						"name": "ordererVerification",
+						"type": "bool"
 					},
 					{
 						"internalType": "enum SupplyChain.Status",

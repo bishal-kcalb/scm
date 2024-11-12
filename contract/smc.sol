@@ -5,11 +5,15 @@ pragma solidity ^0.8.25;
 contract SupplyChain {
     address[] ManufacturerList;
     address[] SupplierList;
+    address[] DistributorList;
+    // address[] ShipperList;
     uint256[] MedicineList;
     uint256 manufacturerId = 0;
     uint256 supplierId = 0;
+    uint256 distributorId = 0;
     uint256 medicineId = 0;
     uint256 orderId = 0;
+    uint256 shipperId =0;
 
     address MOH;
 
@@ -18,7 +22,7 @@ contract SupplyChain {
         MOH,
         Manufacturer,
         Supplier,
-        Wholeseller
+        Distributor
         
     }
 
@@ -52,6 +56,18 @@ contract SupplyChain {
         bool verified;
     }
 
+    struct distributorDetail {
+        uint256 id;
+        string name;
+        string location;
+        string contact;
+        string email;
+        uint256 joinedDate;
+        string distributorType;
+        address walletAddress;
+        bool verified;
+    }
+
     struct medicineDetails {
         uint256 medId;
         address manufacturer;
@@ -72,6 +88,8 @@ contract SupplyChain {
        uint256 orderId;
        address orderTo;
        address orderer;
+       address shipper;
+       bool ordererVerification;
        Status status;
     }
 
@@ -80,7 +98,9 @@ contract SupplyChain {
         string name;
         address walletAddress;
         string contact;
+        string email;
         string location;
+        bool verified;
 
     }
 
@@ -91,6 +111,8 @@ contract SupplyChain {
     mapping(address => address[]) manufacturerSupplierList;
     mapping(address => address[]) supplierManufacturerList;
     mapping(address => supplierDetails) SupplierDetails;
+    mapping (address => distributorDetail) DistributorDetails;
+    mapping(address => delivery) ShipperDetails;
     mapping(address => string[]) ManufacturerCategory;
     mapping(address => uint256[]) MedicineListInManufacturer;
     mapping(address =>uint256[]) SoldMedicineListManufacturer;
@@ -104,6 +126,21 @@ contract SupplyChain {
     mapping(uint256=>Status) OrderStatus;
 
 
+    function addShipper(string memory _name , address _walletAddress, string memory _email, string memory _contact, string memory _location) external {
+        shipperId += 1;
+        ShipperDetails[_walletAddress] = delivery({
+            deliveryId: shipperId,
+            name: _name,
+            walletAddress: _walletAddress,
+            contact: _contact,
+            email: _email,
+            location: _location,
+            verified: false
+        });
+
+        // ShipperList.push(_walletAddress);
+    }
+
     function placeOrder(address _userAddress, uint256[] memory medArray)external{
         orderId += 1;
         OrderDetail[orderId] = order({
@@ -111,6 +148,8 @@ contract SupplyChain {
             orderId:orderId,
             orderTo:_userAddress,
             orderer:msg.sender,
+            shipper:address(0),
+            ordererVerification:false,
             status:Status.Pending
         });
 
@@ -120,16 +159,22 @@ contract SupplyChain {
     }
 
     function acceptOrder(uint256 _orderId)external{
+        require(msg.sender==OrderDetail[_orderId].orderTo,'you are not orderTo');
         OrderDetail[_orderId].status = Status.Accepted;
     }
 
     function transferForDeliver(address _shipperAddress,uint256 _orderId) external{
+        require(msg.sender==OrderDetail[_orderId].orderTo,'you are not orderTo');
+        OrderDetail[_orderId].shipper= _shipperAddress;
         DeliveryOrderList[_shipperAddress].push(_orderId);
     }
 
-    function deliverOrder(uint256 _orderId) external {
-        OrderDetail[_orderId].status = Status.Delivered;
+    function ordererVerification(uint256 _orderId) external{
+        require(msg.sender==OrderDetail[_orderId].orderer,'you are not orderTo');
+        OrderDetail[_orderId].ordererVerification=true;
     }
+
+
 
     function getManufacturerOrderList(address _address) public view returns (order[] memory){
         order[] memory orderList = new order[](ManufacturerOrderList[_address].length);
@@ -218,6 +263,31 @@ contract SupplyChain {
         });
     }
 
+    function addDistributor(
+        string memory _name,
+        string memory _location,
+        string memory _contact,
+        string memory _email,
+        string memory _type,
+        address _distributorAddress
+    ) external {
+        distributorId += 1;
+        DistributorList.push(_distributorAddress);
+        UserRole[_distributorAddress] = Role.Distributor;
+        // supplierAddress[supplierId] = _supplierAddress;
+        DistributorDetails[_distributorAddress] = distributorDetail({
+            id:  distributorId,
+            name: _name,
+            location: _location,
+            contact: _contact,
+            email: _email,
+            joinedDate: block.timestamp,
+            distributorType: _type,
+            walletAddress: _distributorAddress,
+            verified: false
+        });
+    }
+
     function addMedCategory(string memory _name) external {
         ManufacturerCategory[msg.sender].push(_name);
     }
@@ -253,6 +323,10 @@ contract SupplyChain {
         });
     }
 
+    function addShipper() external {
+
+    }
+
     function verifyManufacturer(address _id) external {
         require(msg.sender == MOH, "You are not the MOH");
         ManufacturerDetails[_id].verified = true;
@@ -270,7 +344,7 @@ contract SupplyChain {
 
     function sellMedToSupplier(address _supplierId, uint256 _medId) external {
         // uint256 _id =  manufacturerAddress[msg.sender];
-        require(UserRole[msg.sender] == Role.Manufacturer || UserRole[msg.sender] == Role.Supplier || UserRole[msg.sender] == Role.Wholeseller, "not eligible");
+        require(UserRole[msg.sender] == Role.Manufacturer || UserRole[msg.sender] == Role.Supplier || UserRole[msg.sender] == Role.Distributor, "not eligible");
         require(MedicineDetails[_medId].owner == msg.sender, "not owner");
         bool manufacturerExist = false;
 
@@ -310,30 +384,13 @@ contract SupplyChain {
         MedicineDetails[_medId].owner = _supplierId;
     }
 
-    function confirmOrder(address _address, uint256[] memory _medArray,uint256 _orderId ) external {
-        require(UserRole[msg.sender] == Role.Manufacturer || UserRole[msg.sender] == Role.Supplier || UserRole[msg.sender] == Role.Wholeseller, "not eligible");
-        // require(MedicineDetails[_medId].owner == msg.sender, "not owner");
-        for(uint256 i=0; i<OrderDetail[_orderId].medId.length; i++){
-            require(OrderDetail[_orderId].status == OrderStatus[_orderId]);
-                    for (uint256 j = 0;j < MedicineListInManufacturer[msg.sender].length;j++) {
-                         if (MedicineListInManufacturer[msg.sender][j] == _medArray[i]) {
-                             MedicineListInManufacturer[msg.sender][j] = MedicineListInManufacturer[msg.sender][MedicineListInManufacturer[msg.sender].length - 1];
-                             MedicineListInManufacturer[msg.sender].pop();
-                             break;
-                          }
 
-                     }
-             supplierMedicineList[_address][msg.sender].push(_medArray[i]);
-             SoldMedicineListManufacturer[msg.sender].push(_medArray[i]);
-             MedicineDetails[_medArray[i]].owner = _address;
-        }
-    }
-
-        function sellMedInBulk(address _address, uint256[] memory _medArray ) external {
-        require(UserRole[msg.sender] == Role.Manufacturer || UserRole[msg.sender] == Role.Supplier || UserRole[msg.sender] == Role.Wholeseller, "not eligible");
+        function sellMedInBulk(address _address, uint256[] memory _medArray, uint256 _orderId ) internal {
+        // require(UserRole[msg.sender] == Role.Manufacturer || UserRole[msg.sender] == Role.Supplier || UserRole[msg.sender] == Role.Wholeseller, "not eligible");
         // require(MedicineDetails[_medId].owner == msg.sender, "not owner");
+        require(OrderDetail[_orderId].shipper == msg.sender,"not owner");
         for(uint256 i=0; i<_medArray.length; i++){
-            require(MedicineDetails[_medArray[i]].owner == msg.sender,"not owner");
+            require(MedicineDetails[_medArray[i]].owner == OrderDetail[_orderId].orderTo,"not owner");
                     for (uint256 j = 0;j < MedicineListInManufacturer[msg.sender].length;j++) {
                          if (MedicineListInManufacturer[msg.sender][j] == _medArray[i]) {
                              MedicineListInManufacturer[msg.sender][j] = MedicineListInManufacturer[msg.sender][MedicineListInManufacturer[msg.sender].length - 1];
@@ -348,7 +405,11 @@ contract SupplyChain {
         }
     }
 
-
+    function deliverOrder(uint256 _orderId) external {
+        require(msg.sender==OrderDetail[_orderId].shipper,'you are not shipper');
+        sellMedInBulk(OrderDetail[_orderId].orderer,OrderDetail[_orderId].medId,_orderId);
+        OrderDetail[_orderId].status = Status.Delivered;
+    }
 
     function getManufacturerList() public view returns (address[] memory) {
         return ManufacturerList;
@@ -464,8 +525,8 @@ contract SupplyChain {
             return ("Supplier", _user);
         } 
 
-        if(UserRole[_user] == Role.Wholeseller) {
-            return ("Wholeseller", _user);
+        if(UserRole[_user] == Role.Distributor) {
+            return ("Distributor", _user);
         }
 
         if(UserRole[_user] == Role.MOH){

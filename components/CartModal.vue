@@ -82,20 +82,29 @@ const placeOrder = async() => {
       method:'eth_requestAccounts'
     })
  
-    const items = []
-    props.row.forEach(element => {
-        element.medId
-        items.push(Number(element.medId))
-        console.log(element.medId)
-    });
-    
-   
+    const orderToList = []
+    props.row.forEach(element=>{
+      if (!orderToList.includes(element.owner)) {
+    orderToList.push(element.owner);
+  }
+    })
+    console.log('owner list', orderToList)
 
+    orderToList.forEach(async orderTo => {
+        const items = [];
+        props.row.forEach(element => {
+            if(orderTo == element.owner){
+              items.push(element.medId)
+            }
+        });      
+        console.log(orderTo,':',items)
+        
+        
     const txObject = {
       from: accounts[0],
       to: contractScm.options.address,  // Smart contract address
       data: contractScm.methods.placeOrder(
-        accounts[0],
+        orderTo,
         items,
 
       ).encodeABI(),  // ABI encoding of the method and parameters
@@ -106,6 +115,8 @@ const placeOrder = async() => {
       params: [txObject],
     });
     console.log('Transaction successful:', response);
+    });
+
 }
 
 onBeforeMount(()=>{
