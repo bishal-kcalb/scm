@@ -3,6 +3,8 @@
         <MohProfile v-if="props.userRole === 'MOH'"/>
         <ManufacturerProfile v-if="props.userRole === 'Manufacturer'" />
         <SupplierProfile v-if="props.userRole === 'Supplier'" />
+        <DistributorProfile v-if="props.userRole==='Distributor'"/>
+        <ShipperProfile v-if="props.userRole === 'Shipper'"/>
     </div>
 </template>
 

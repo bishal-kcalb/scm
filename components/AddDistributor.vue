@@ -46,20 +46,29 @@
                class="mt-1 block text-black w-full bg-transparent rounded-sm border-black  focus:border-[#FF6600] focus:ring focus:ring-[#FF6600] focus:ring-opacity-50"
             />
           </div>
-          
-          <div class="space-y-2 md:col-span-2">
-            <label for="manufacturerAddress" class="block text-sm font-medium text-gray-700">Supplier Address</label>
+          <div class="space-y-2">
+            <label for="email" class="block text-sm font-medium text-gray-700">Type</label>
             <input
-              id="manufacturerAddress"
-              v-model="formData.supplierAddress"
+              id="email"
+              v-model="formData.type"
+              type="text"
               required
-              rows="3"
                class="mt-1 block text-black w-full bg-transparent rounded-sm border-black  focus:border-[#FF6600] focus:ring focus:ring-[#FF6600] focus:ring-opacity-50"
-            >
+            />
+          </div>
+          <div class="space-y-2">
+            <label for="email" class="block text-sm font-medium text-gray-700">Distributor Address</label>
+            <input
+              id="email"
+              v-model="formData.distributorAddress"
+              type="email"
+              required
+               class="mt-1 block text-black w-full bg-transparent rounded-sm border-black  focus:border-[#FF6600] focus:ring focus:ring-[#FF6600] focus:ring-opacity-50"
+            />
           </div>
         </div>
         
-        <ButtonPrimary :title="title" class="mt-5" @click="addSupplier()"/>
+        <ButtonPrimary :title="title" class="mt-5" @click="addDistributor()"/>
       </div>
     </div>
   </template>
@@ -71,30 +80,32 @@ import { scmContract, scmAbi } from "../constants/constant.js"
 
 const web3 = new Web3('http://127.0.0.1:8545')
 const contractScm = new web3.eth.Contract(scmAbi,scmContract);
- const title = 'Add Supplier' 
+ const title = 'Register' 
   const formData = ref({
     name: '',
     location: '',
     contact: '',
     email: '',
-    supplierAddressAddress: ''
+    type:'',
+    distributorAddress: ''
   })
   
 
   
-const addSupplier = async()=>{
+const addDistributor = async()=>{
     const accounts = await window.ethereum.request({
       method:'eth_requestAccounts'
     })
     const txObject = {
       from: accounts[0],
       to: contractScm.options.address,  // Smart contract address
-      data: contractScm.methods.addSupplier(
+      data: contractScm.methods.addDistributor(
         formData.value.name,
         formData.value.location,
         formData.value.contact,
         formData.value.email,
-        formData.value.supplierAddress
+        formData.value.type,
+        formData.value.distributorAddress
       ).encodeABI(),  // ABI encoding of the method and parameters
     };
 

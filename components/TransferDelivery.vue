@@ -43,11 +43,10 @@
       const accounts = await window.ethereum.request({
         method:'eth_requestAccounts'
       })
-
     const txObject = {
       from: accounts[0],
       to: contractScm.options.address,  // Smart contract address
-      data: contractScm.methods.transferForDelivery(
+      data: contractScm.methods.transferForDeliver(
         shipperAddress.value,
         props.orderData.orderId
       ).encodeABI(),  // ABI encoding of the method and parameters

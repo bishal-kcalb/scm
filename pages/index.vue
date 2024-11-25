@@ -25,7 +25,7 @@
                 <div v-if="activeTab=='Manufacturer'" class="mt-10">
                         <div class="flex justify-between">
                             <h1 class="text-[#604CC3] text-3xl">{{ user }}</h1>
-                            <ButtonSecondary :title="title" @click="isOpen=true; modalTitle = 'Add Manufacturer';"/>
+                            <ButtonSecondary v-if="userRole=='User'" :title="title" @click="isOpen=true; modalTitle = 'Register Manufacturer';"/>
                         </div>
                     <Table :columns="col" :td="tableData" :buttonTitle="manufacturerButtonTitle" :tableFunc="getManufacturerMedicineList"/>
                       <ManufacturerDetailModal :isOpen="modalOpen" :col="manufacturerMedCol" :row="manufacturerMedRow" @update="modalOpen=false" @cartItem="handleCartItem"/>
@@ -33,14 +33,29 @@
                 <div v-if="activeTab=='Supplier'" class="mt-10">
                         <div class="flex justify-between">
                             <h1 class="text-[#604CC3] text-3xl">{{ user }}</h1>
-                            <ButtonSecondary v-if="role=='Manufacturer'" :title="title" @click="isOpen=true; modalTitle = 'Add Supplier';" />
+                            <ButtonSecondary v-if="userRole=='User'" :title="'Register Supplier'" @click="isOpen=true; modalTitle = 'Register Supplier';" />
                         </div>
-                    <Table :columns="colSupplier" :td="tableDataSupplier"/>
+                    <Table :columns="colSupplier" :td="tableDataSupplier" :buttonTitle="manufacturerButtonTitle" :tableFunc="getManufacturerMedicineList"/>
+                    <SupplierDetailModal :isOpen="modalOpen" :col="manufacturerMedCol" :row="manufacturerMedRow" @update="modalOpen=false" @cartItem="handleCartItem"/>
+                </div>
+                <div v-if="activeTab=='Distributor'" class="mt-10">
+                        <div class="flex justify-between">
+                            <h1 class="text-[#604CC3] text-3xl">{{ user }}</h1>
+                            <ButtonSecondary v-if="userRole=='User'" :title="'Register Distributor'" @click="isOpen=true; modalTitle = 'Register Distributor';" />
+                        </div>
+                    <Table :columns="colDistributor" :td="tableDataDistributor"/>
+                </div>
+                <div v-if="activeTab=='Shipper'" class="mt-10">
+                        <div class="flex justify-between">
+                            <h1 class="text-[#604CC3] text-3xl">{{ user }}</h1>
+                            <ButtonSecondary v-if="userRole=='User'" :title="'Register Shipper'" @click="isOpen=true; modalTitle = 'Register Shipper';" />
+                        </div>
+                    <Table :columns="colShipper" :td="tableDataShipper"/>
                 </div>
                 <div v-if="activeTab=='Medicine'" class="mt-10">
                         <div class="flex justify-between">
                             <h1 class="text-[#604CC3] text-3xl">{{ user }}</h1>
-                            <ButtonSecondary v-if="role=='Manufacturer'" :title="title" @click="isOpen=true; modalTitle = 'Add Medicine';" />
+                            <ButtonSecondary  :title="title" @click="isOpen=true; modalTitle = 'Add Medicine';" />
                         </div>
                     <Table :columns="colMedicine" :td="tableDataMedicine"/>
                 </div>
@@ -93,6 +108,12 @@
           <div v-if="modalTitle == 'Add Medicine'">
             <AddMedicine />
           </div>
+          <div v-if="modalTitle == 'Add Shipper'">
+            <AddShipper/>
+          </div>
+          <div v-if="modalTitle == 'Add Distributor'">
+            <AddDistributor/>
+          </div>
         </UCard>
       </UModal>
     </div>
@@ -117,6 +138,7 @@ const contractScm = new web3.eth.Contract(scmAbi,scmContract);
 const isOpen = ref(false)
 const totalManufacturer = ref(0)
 const totalSupplier = ref(0)
+const totalShipper =ref(0)
 const totalMedicine = ref(0)
 const manufacturerButtonTitle='View Details'
 const manufacturerMedCol = ref([])
@@ -155,19 +177,23 @@ const colSupplier = ref([])
 const tableDataSupplier = ref([])
 const colMedicine = ref([])
 const tableDataMedicine = ref([])
+const colShipper = ref([])
+const tableDataShipper = ref([])
+const colDistributor = ref([])
+const tableDataDistributor = ref([])
 const openMenu = ref(true)
 const modalOpen = ref(false)
 const cartItems = ref([])
 
 const user = ref('All Manufacturer')
-const title= ref('Add Manufacturer')
+const title= ref('Register Manufacturer')
 const role = ref('')
 const activeTab = ref('Manufacturer')
 const handleUpdate = (data) => {
     activeTab.value = data;
     user.value ='All '+ activeTab.value
     if(activeTab.value=='Manufacturer'){
-        title.value= 'Add Manufacturer'
+        title.value= 'Register Manufacturer'
 
     }
 
@@ -250,6 +276,75 @@ const getAllSuppliers = async()=>{
             walletAddress:data.walletAddress
         }
         tableDataSupplier.value.push(rowData)
+        
+      })
+      colSupplier.value.push({key:"action",label:"Action"})
+}
+
+const getAllDistributor = async()=>{
+    const supplierList = await contractScm.methods.getAllDistributorDetails().call();
+    totalSupplier.value =supplierList.length
+    supplierList.map((data)=>{
+        const filteredKeys = Object.keys(data).filter((key,index)=>{
+            return key !== '__length__' && isNaN(key);
+        })
+        filteredKeys.forEach((data)=>{
+            const colObj = {
+                key:data,
+                label:data.toUpperCase()
+            }
+                // Ensure no duplicates are added
+                 if (!colDistributor.value.some(item => item.key === colObj.key)) {
+                colDistributor.value.push(colObj);
+            }
+
+        })
+        const rowData = {
+            id:data.id,
+            name:data.name,
+            location:data.location,
+            contact:data.contact,
+            email:data.email,
+            joinedDate:data.joinedDate,
+            distributorType:data.distributorType,
+            verified:data.verified,
+            walletAddress:data.walletAddress
+        }
+        tableDataDistributor.value.push(rowData)
+
+    })
+}
+
+const getAllShipper = async()=>{
+    const shipperList = await contractScm.methods.getAllShipperDetails().call();
+    totalShipper.value =shipperList.length
+    shipperList.map((data)=>{
+        const filteredKeys = Object.keys(data).filter((key,index)=>{
+            return key !== '__length__' && isNaN(key);
+        })
+        filteredKeys.forEach((data)=>{
+            const colObj = {
+                key:data,
+                label:data.toUpperCase()
+            }
+                // Ensure no duplicates are added
+                 if (!colShipper.value.some(item => item.key === colObj.key)) {
+                colShipper.value.push(colObj);
+            }
+
+        })
+        const rowData = {
+            id:data.id,
+            name:data.name,
+            location:data.location,
+            contact:data.contact,
+            email:data.email,
+            joinedDate:data.joinedDate,
+            deliveryId: data.deliveryId,
+            verified:data.verified,
+            walletAddress:data.walletAddress
+        }
+        tableDataShipper.value.push(rowData)
 
     })
 }
@@ -303,14 +398,12 @@ const getUserRole = async ()=>{
     role.value = userRole[0]
 }
 
-const getModalOpenValue = (data)=>{
-  modalOpen.value = data
-}
 
 const getManufacturerMedicineList = async(data)=>{
+  console.log("data is:",data)
   modalOpen.value = data
   modalOpen.value = true
-    const medicineList = await contractScm.methods.getManufacturerMedicineList(data.walletAddress).call();
+    const medicineList = await contractScm.methods.getUserMedicineList(data.walletAddress).call();
     medicineList.map((data)=>{
         const filteredKeys = Object.keys(data).filter((key,index)=>{
             return key !== '__length__' && isNaN(key);
@@ -414,6 +507,8 @@ onBeforeMount(()=>{
     getAllSuppliers()
     getAllMedicine()
     getUserRole()
+    getAllShipper()
+    getAllDistributor()
 
 })
 </script>

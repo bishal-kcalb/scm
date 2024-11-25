@@ -1,4 +1,4 @@
-export const scmContract = '0xCcce498C06760d3113863E4d78eB8df5520bD364'
+export const scmContract = '0x1A7422Fe9415eE18fBD17765acF34e0160029A14'
 export const scmAbi = [
 	{
 		"inputs": [
@@ -146,13 +146,6 @@ export const scmAbi = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "addShipper",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "string",
@@ -279,24 +272,6 @@ export const scmAbi = [
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "_supplierId",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_medId",
-				"type": "uint256"
-			}
-		],
-		"name": "sellMedToSupplier",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
 				"name": "_shipperAddress",
 				"type": "address"
 			},
@@ -359,6 +334,66 @@ export const scmAbi = [
 		"name": "verifySupplier",
 		"outputs": [],
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getAllDistributorDetails",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "location",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "contact",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "email",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "joinedDate",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "distributorType",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "walletAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "bool",
+						"name": "verified",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct SupplyChain.distributorDetail[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -493,6 +528,56 @@ export const scmAbi = [
 	},
 	{
 		"inputs": [],
+		"name": "getAllShipperDetails",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "deliveryId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "walletAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "contact",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "email",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "location",
+						"type": "string"
+					},
+					{
+						"internalType": "bool",
+						"name": "verified",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct SupplyChain.delivery[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "getAllSupplierDetails",
 		"outputs": [
 			{
@@ -611,6 +696,72 @@ export const scmAbi = [
 		"inputs": [
 			{
 				"internalType": "address",
+				"name": "_distributorAddress",
+				"type": "address"
+			}
+		],
+		"name": "getDistributorDetails",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "location",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "contact",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "email",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "joinedDate",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "distributorType",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "walletAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "bool",
+						"name": "verified",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct SupplyChain.distributorDetail",
+				"name": "",
+				"type": "tuple"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
 				"name": "_manufacturerId",
 				"type": "address"
 			}
@@ -669,100 +820,6 @@ export const scmAbi = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "getManufacturerList",
-		"outputs": [
-			{
-				"internalType": "address[]",
-				"name": "",
-				"type": "address[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_id",
-				"type": "address"
-			}
-		],
-		"name": "getManufacturerMedicineList",
-		"outputs": [
-			{
-				"components": [
-					{
-						"internalType": "uint256",
-						"name": "medId",
-						"type": "uint256"
-					},
-					{
-						"internalType": "address",
-						"name": "manufacturer",
-						"type": "address"
-					},
-					{
-						"internalType": "string",
-						"name": "name",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "medType",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "manufacturedDate",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "expiryDate",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "description",
-						"type": "string"
-					},
-					{
-						"internalType": "uint256",
-						"name": "mrp",
-						"type": "uint256"
-					},
-					{
-						"internalType": "string",
-						"name": "qrcodeUrl",
-						"type": "string"
-					},
-					{
-						"internalType": "address",
-						"name": "owner",
-						"type": "address"
-					},
-					{
-						"internalType": "string",
-						"name": "category",
-						"type": "string"
-					},
-					{
-						"internalType": "bool",
-						"name": "verified",
-						"type": "bool"
-					}
-				],
-				"internalType": "struct SupplyChain.medicineDetails[]",
-				"name": "",
-				"type": "tuple[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -811,153 +868,6 @@ export const scmAbi = [
 					}
 				],
 				"internalType": "struct SupplyChain.order[]",
-				"name": "",
-				"type": "tuple[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_id",
-				"type": "address"
-			}
-		],
-		"name": "getManufacturerSoldMedicineList",
-		"outputs": [
-			{
-				"components": [
-					{
-						"internalType": "uint256",
-						"name": "medId",
-						"type": "uint256"
-					},
-					{
-						"internalType": "address",
-						"name": "manufacturer",
-						"type": "address"
-					},
-					{
-						"internalType": "string",
-						"name": "name",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "medType",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "manufacturedDate",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "expiryDate",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "description",
-						"type": "string"
-					},
-					{
-						"internalType": "uint256",
-						"name": "mrp",
-						"type": "uint256"
-					},
-					{
-						"internalType": "string",
-						"name": "qrcodeUrl",
-						"type": "string"
-					},
-					{
-						"internalType": "address",
-						"name": "owner",
-						"type": "address"
-					},
-					{
-						"internalType": "string",
-						"name": "category",
-						"type": "string"
-					},
-					{
-						"internalType": "bool",
-						"name": "verified",
-						"type": "bool"
-					}
-				],
-				"internalType": "struct SupplyChain.medicineDetails[]",
-				"name": "",
-				"type": "tuple[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_manufacturerId",
-				"type": "address"
-			}
-		],
-		"name": "getManufacturerSupplierList",
-		"outputs": [
-			{
-				"components": [
-					{
-						"internalType": "uint256",
-						"name": "id",
-						"type": "uint256"
-					},
-					{
-						"internalType": "string",
-						"name": "name",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "location",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "contact",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "email",
-						"type": "string"
-					},
-					{
-						"internalType": "uint256",
-						"name": "joinedDate",
-						"type": "uint256"
-					},
-					{
-						"internalType": "address",
-						"name": "addedBy",
-						"type": "address"
-					},
-					{
-						"internalType": "address",
-						"name": "walletAddress",
-						"type": "address"
-					},
-					{
-						"internalType": "bool",
-						"name": "verified",
-						"type": "bool"
-					}
-				],
-				"internalType": "struct SupplyChain.supplierDetails[]",
 				"name": "",
 				"type": "tuple[]"
 			}
@@ -1057,13 +967,56 @@ export const scmAbi = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "getSupplierList",
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_shipperAddress",
+				"type": "address"
+			}
+		],
+		"name": "getShipperDetails",
 		"outputs": [
 			{
-				"internalType": "address[]",
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "deliveryId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "walletAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "contact",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "email",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "location",
+						"type": "string"
+					},
+					{
+						"internalType": "bool",
+						"name": "verified",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct SupplyChain.delivery",
 				"name": "",
-				"type": "address[]"
+				"type": "tuple"
 			}
 		],
 		"stateMutability": "view",
@@ -1073,11 +1026,11 @@ export const scmAbi = [
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "_supplierId",
+				"name": "_supplierAddress",
 				"type": "address"
 			}
 		],
-		"name": "getSupplierManufacturerList",
+		"name": "getSupplierDetails",
 		"outputs": [
 			{
 				"components": [
@@ -1113,6 +1066,11 @@ export const scmAbi = [
 					},
 					{
 						"internalType": "address",
+						"name": "addedBy",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
 						"name": "walletAddress",
 						"type": "address"
 					},
@@ -1122,7 +1080,63 @@ export const scmAbi = [
 						"type": "bool"
 					}
 				],
-				"internalType": "struct SupplyChain.manufacturerDetails[]",
+				"internalType": "struct SupplyChain.supplierDetails",
+				"name": "",
+				"type": "tuple"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_address",
+				"type": "address"
+			}
+		],
+		"name": "getSupplierOrderList",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256[]",
+						"name": "medId",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "orderTo",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "orderer",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "shipper",
+						"type": "address"
+					},
+					{
+						"internalType": "bool",
+						"name": "ordererVerification",
+						"type": "bool"
+					},
+					{
+						"internalType": "enum SupplyChain.Status",
+						"name": "status",
+						"type": "uint8"
+					}
+				],
+				"internalType": "struct SupplyChain.order[]",
 				"name": "",
 				"type": "tuple[]"
 			}
@@ -1134,16 +1148,11 @@ export const scmAbi = [
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "_supplierId",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "_manufacturerId",
+				"name": "_userAddress",
 				"type": "address"
 			}
 		],
-		"name": "getSupplierMedicineList",
+		"name": "getUserMedicineList",
 		"outputs": [
 			{
 				"components": [
@@ -1220,62 +1229,6 @@ export const scmAbi = [
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "_address",
-				"type": "address"
-			}
-		],
-		"name": "getSupplierOrderList",
-		"outputs": [
-			{
-				"components": [
-					{
-						"internalType": "uint256[]",
-						"name": "medId",
-						"type": "uint256[]"
-					},
-					{
-						"internalType": "uint256",
-						"name": "orderId",
-						"type": "uint256"
-					},
-					{
-						"internalType": "address",
-						"name": "orderTo",
-						"type": "address"
-					},
-					{
-						"internalType": "address",
-						"name": "orderer",
-						"type": "address"
-					},
-					{
-						"internalType": "address",
-						"name": "shipper",
-						"type": "address"
-					},
-					{
-						"internalType": "bool",
-						"name": "ordererVerification",
-						"type": "bool"
-					},
-					{
-						"internalType": "enum SupplyChain.Status",
-						"name": "status",
-						"type": "uint8"
-					}
-				],
-				"internalType": "struct SupplyChain.order[]",
-				"name": "",
-				"type": "tuple[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
 				"name": "_user",
 				"type": "address"
 			}
@@ -1291,6 +1244,87 @@ export const scmAbi = [
 				"internalType": "address",
 				"name": "",
 				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_userAddress",
+				"type": "address"
+			}
+		],
+		"name": "getUserSoldMedicineList",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "medId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "manufacturer",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "medType",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "manufacturedDate",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "expiryDate",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "description",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "mrp",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "qrcodeUrl",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "category",
+						"type": "string"
+					},
+					{
+						"internalType": "bool",
+						"name": "verified",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct SupplyChain.medicineDetails[]",
+				"name": "",
+				"type": "tuple[]"
 			}
 		],
 		"stateMutability": "view",

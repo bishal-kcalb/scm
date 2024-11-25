@@ -42,6 +42,23 @@
                         d="M6 4h12M6 4v16M6 4H5m13 0v16m0-16h1m-1 16H6m12 0h1M6 20H5M9 7h1v1H9V7Zm5 0h1v1h-1V7Zm-5 4h1v1H9v-1Zm5 0h1v1h-1v-1Zm-3 4h2a1 1 0 0 1 1 1v4h-4v-4a1 1 0 0 1 1-1Z" />
                 </svg>
                 Supplier</span>
+                <span @click="acitveTab = 'Distributor', sendActiveTabToParent()"
+                :class="['cursor-pointer flex items-center rounded gap-2 hover:bg-[#604CC3] p-[8px] hover:text-[#F5F5F5] hover:transaction-all hover:duration-700', acitveTab == 'Distributor' ? 'bg-[#604CC3] text-[#F5F5F5]' : '']"><svg
+                    class="w-[35px] h-[35px] text-gray-800 dark:text-white" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#FF6600" viewBox="0 0 24 24">
+                    <path stroke="#FF6600" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.1"
+                        d="M6 4h12M6 4v16M6 4H5m13 0v16m0-16h1m-1 16H6m12 0h1M6 20H5M9 7h1v1H9V7Zm5 0h1v1h-1V7Zm-5 4h1v1H9v-1Zm5 0h1v1h-1v-1Zm-3 4h2a1 1 0 0 1 1 1v4h-4v-4a1 1 0 0 1 1-1Z" />
+                </svg>
+                Distributor</span>
+                <span @click="acitveTab = 'Shipper', sendActiveTabToParent()"
+                :class="['cursor-pointer flex items-center rounded gap-2 hover:bg-[#604CC3] p-[8px] hover:text-[#F5F5F5] hover:transaction-all hover:duration-700', acitveTab == 'Shipper' ? 'bg-[#604CC3] text-[#F5F5F5]' : '']"><svg
+                    class="w-[35px] h-[35px] text-gray-800 dark:text-white" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#FF6600" viewBox="0 0 24 24">
+                    <path stroke="#FF6600" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.1"
+                        d="M6 4h12M6 4v16M6 4H5m13 0v16m0-16h1m-1 16H6m12 0h1M6 20H5M9 7h1v1H9V7Zm5 0h1v1h-1V7Zm-5 4h1v1H9v-1Zm5 0h1v1h-1v-1Zm-3 4h2a1 1 0 0 1 1 1v4h-4v-4a1 1 0 0 1 1-1Z" />
+                </svg>
+                Shipper</span>
+                
             <span @click="acitveTab = 'Medicine', sendActiveTabToParent()"
                 :class="['cursor-pointer flex items-center rounded gap-2 hover:bg-[#604CC3] p-[8px] hover:text-[#F5F5F5] hover:transaction-all hover:duration-700', acitveTab == 'Medicine' ? 'bg-[#604CC3] text-[#F5F5F5]' : '']"><svg
                     class="w-[35px] h-[35px] text-gray-800 dark:text-white" aria-hidden="true"

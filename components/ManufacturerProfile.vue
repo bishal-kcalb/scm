@@ -1,9 +1,6 @@
 <template>
     <div class="text-black">
         <div class="mt-20">
-            <!-- <h1 class="text-[#604CC3] text-3xl">UserId</h1>
-            <h1 class="text-[#604CC3] text-3xl">Name</h1> -->
-            <!-- component -->
             <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css">
             <link rel="stylesheet"
                 href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
@@ -76,17 +73,17 @@
                 <div class="">
                             <h1 class="text-[#604CC3] text-3xl">Order List</h1>
                         </div>
-                <Table :columns="colOrder" :td="tableDataOrder" />
+                <Table :columns="colOrder" :td="tableDataOrder" :delivered="delivered" :delivering="delivering"  :transferDelivery="transferOrderToDelivery" :acceptDelivery="acceptOrder"/>
             </div>
         </div>
-        <div>
+        <!-- <div>
             <div>
                 <div class="">
                             <h1 class="text-[#604CC3] text-3xl">Supplier List</h1>
                         </div>
                 <Table :columns="col" :td="tableData" />
             </div>
-        </div>
+        </div> -->
         <div>
             <div>
                 <div class="flex justify-between">
@@ -141,10 +138,12 @@
             </div>
           </template>
           <div>
-            <SellMedicine :medId="medicineId" />
+            <TransferDelivery :orderData="orderData" />
           </div>
         </UCard>
       </UModal>
+
+
     </div>
 </template>
 
@@ -175,7 +174,7 @@ const cards = ref([
 ])
 const isOpen = ref(false)
 const medicineId = ref(0)
-const modalTitle = ref('Sell Medicine')
+const modalTitle = ref('Transfer Order')
 const buttonTitleMedicine='Sell Medicine'
 const col = ref([])
 const tableData = ref([])
@@ -196,50 +195,15 @@ const userDetails = ref({
 const totalSoldMedicine = ref(0)
 const totalSoldMedicineCol = ref([])
 const totalSoldMedicineRow = ref([])
+const orderData = ref({})
 const accounts = await window.ethereum.request({
         method:'eth_requestAccounts'
     })
 
-const getSupplierList = async () => {
-    
-    const supplierList = await contractScm.methods.getManufacturerSupplierList(accounts[0]).call();
-    totalSupplier.value = supplierList.length
-    supplierList.map((data) => {
-        const filteredKeys = Object.keys(data).filter((key, index) => {
-            return key !== '__length__' && isNaN(key);
-        })
 
-        filteredKeys.forEach((data) => {
-            const colObj = {
-                key: data,
-                label: data.toUpperCase()
-            }
-            // Ensure no duplicates are added
-            if (!col.value.some(item => item.key === colObj.key)) {
-                col.value.push(colObj);
-            }
-            
-        })
-        // col.value.push({key:'action',label:"Action"})
-        const rowData = {
-            id: data.id,
-            name: data.name,
-            location: data.location,
-            contact: data.contact,
-            email: data.email,
-            joinedDate: data.joinedDate,
-            verified: data.verified,
-            addedBy: data.addedBy,
-            walletAddress: data.walletAddress
-        }
-        tableData.value.push(rowData)
-
-    })
- 
-}
 
 const getMedicineList = async()=>{
-    const medicineList = await contractScm.methods.getManufacturerMedicineList(accounts[0]).call();
+    const medicineList = await contractScm.methods.getUserMedicineList(accounts[0]).call();
     totalMedicine.value = medicineList.length
     cards.value[1].total = totalMedicine.value
     medicineList.map((data)=>{
@@ -294,7 +258,7 @@ const getManufacturerDetail = async ()=>{
 }
 
 const getManufacturerSoldMedicineList = async()=>{
-    const soldMedicineList = await contractScm.methods.getManufacturerSoldMedicineList(accounts[0]).call();
+    const soldMedicineList = await contractScm.methods.getUserSoldMedicineList(accounts[0]).call();
     totalSoldMedicine.value = soldMedicineList.length
     cards.value[0].total = totalMedicine.value + totalSoldMedicine.value
     soldMedicineList.map((data)=>{
@@ -340,6 +304,7 @@ const sellMedicine = async(medId)=>{
     medicineId.value = Number(medId.medId)
 }
 
+const testTitle = ref(null)
 
 const getManufacturerOrderList = async ()=>{
     const orderList = await contractScm.methods.getManufacturerOrderList(accounts[0]).call();
@@ -361,20 +326,67 @@ const getManufacturerOrderList = async ()=>{
             
         })
         // col.value.push({key:'action',label:"Action"})
+        switch(Number(data.status)){
+            case 0:
+                testTitle.value = 'Accept Order'
+                break;
+                case 1:
+                    testTitle.value = 'Transfer For deliver' 
+                    break;
+                    case 3:
+                        testTitle.value = 'Delivered'
+                    }
+                    
+                    console.log("data status", testTitle.value)
         const rowData = {
             medId: String(data.medId),
             orderId: Number(data.orderId),
             orderer: data.orderer,
             status: data.status,
-            orderTo: data.orderTo
+            orderTo: data.orderTo,
+            shipper: data.shipper,
+            ordererVerification: data.ordererVerification
         }
         tableDataOrder.value.push(rowData)
-
+        
     })
+    colOrder.value.push({key:'action',label:'Action'})
+}
+
+const acceptOrder = async (orderData)=>{
+    console.log('order data is ', orderData)
+    const txObject = {
+      from: accounts[0],
+      to: contractScm.options.address,  // Smart contract address
+      data: contractScm.methods.acceptOrder(
+        orderData.orderId
+      ).encodeABI(),  // ABI encoding of the method and parameters
+    };
+
+    const response = await window.ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [txObject],
+    });
+
+    console.log(response)
+}
+
+const transferOrderToDelivery = async(order)=>{
+    orderData.value = order
+    isOpen.value = true
+}
+
+const delivering = ()=>{
+    console.log("Order is sent to delivery")
+}
+
+
+const delivered = async ()=>{
+    console.log('deliverd')
 }
 
 onBeforeMount(() => {
-    getSupplierList()
+    // getSupplierList()
     getMedicineList()
     getManufacturerDetail()
     getManufacturerSoldMedicineList()

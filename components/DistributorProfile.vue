@@ -71,18 +71,10 @@
         <div>
             <div>
                 <div class="">
-                            <h1 class="text-[#604CC3] text-3xl">Order List By You</h1>
+                            <h1 class="text-[#604CC3] text-3xl">Order List</h1>
                         </div>
                 <Table :columns="col" :td="tableData" :buttonTitle="buttonTitle" :tableFunc="verifyOrder"/>
             </div>
-        </div>
-        <div>
-            <div>
-                <div class="">
-                            <h1 class="text-[#604CC3] text-3xl">Order List To You</h1>
-                        </div>
-                        <Table :columns="colOrder" :td="tableDataOrder" :delivered="delivered" :delivering="delivering"  :transferDelivery="transferOrderToDelivery" :acceptDelivery="acceptOrder"/>
-                    </div>
         </div>
         <div>
             <div>
@@ -142,51 +134,6 @@
           </div>
         </UCard>
       </UModal>
-
-      <UModal
-        v-model="openDeliverModal"
-        prevent-close
-        :ui="{
-          body: { background: 'bg-white' },
-          background: 'bg-white',
-          rounded: 'rounded-xl',
-          base: 'rounded-xl',
-        }"
-      >
-        <UCard
-          :ui="{
-            ring: '',
-            divide: 'divide-y divide-red dark:divide-[#F5F5F5]',
-            background: 'bg-white',
-            body: { background: 'bg-white' },
-            header: { background: 'bg-white', base: 'text-[#604CC3]' },
-            rounded: 'rounded-xl',
-            base: 'rounded-xl text-[#604CC3]',
-          }"
-        >
-          <template #header>
-            <div class="flex items-center text-center justify-between">
-              <h3
-                class=" text-[#604CC3] text-xl font-semibold leading-6 text-gray-900 dark:text-[#604CC3]"
-              >
-                {{ modalTitle }}
-              </h3>
-              <UButton
-                color="orange"
-                variant="ghost"
-                icon="i-heroicons-x-mark-20-solid"
-                class="-my-1"
-                @click="openDeliverModal = false"
-              />
-            </div>
-          </template>
-          <div>
-            <TransferDelivery :orderData="orderData" />
-          </div>
-        </UCard>
-      </UModal>
-
-
     </div>
 </template>
 
@@ -221,11 +168,6 @@ const modalTitle = ref('Sell Medicine')
 const buttonTitle='Verify Order'
 const col = ref([])
 const tableData = ref([])
-const colOrder = ref([])
-const tableDataOrder  = ref([])
-const orderData = ref({})
-const testTitle = ref('')
-const openDeliverModal = ref(false)
 const totalSupplier = ref(0)
 const totalMedicine = ref(0)
 const tableDataMedicine = ref([])
@@ -282,86 +224,6 @@ const myOrder = async () => {
  
 }
 
-const orderListToMe = async ()=>{
-    const orderList = await contractScm.methods.getManufacturerOrderList(accounts[0]).call();
-    console.log("manu orderlist", orderList)
-    orderList.map((data) => {
-        const filteredKeys = Object.keys(data).filter((key, index) => {
-            return key !== '__length__' && isNaN(key);
-        })
-
-        filteredKeys.forEach((data) => {
-            const colObj = {
-                key: data,
-                label: data.toUpperCase()
-            }
-            // Ensure no duplicates are added
-            if (!colOrder.value.some(item => item.key === colObj.key)) {
-                colOrder.value.push(colObj);
-            }
-            
-        })
-        // col.value.push({key:'action',label:"Action"})
-        switch(Number(data.status)){
-            case 0:
-                testTitle.value = 'Accept Order'
-                break;
-                case 1:
-                    testTitle.value = 'Transfer For deliver' 
-                    break;
-                    case 3:
-                        testTitle.value = 'Delivered'
-                    }
-                    
-                    console.log("data status", testTitle.value)
-        const rowData = {
-            medId: String(data.medId),
-            orderId: Number(data.orderId),
-            orderer: data.orderer,
-            status: data.status,
-            orderTo: data.orderTo,
-            shipper: data.shipper,
-            ordererVerification: data.ordererVerification
-        }
-        tableDataOrder.value.push(rowData)
-        
-    })
-    colOrder.value.push({key:'action',label:'Action'})
-}
-
-const acceptOrder = async (orderData)=>{
-    console.log('order data is ', orderData)
-    const txObject = {
-      from: accounts[0],
-      to: contractScm.options.address,  // Smart contract address
-      data: contractScm.methods.acceptOrder(
-        orderData.orderId
-      ).encodeABI(),  // ABI encoding of the method and parameters
-    };
-
-    const response = await window.ethereum.request({
-      method: 'eth_sendTransaction',
-      params: [txObject],
-    });
-
-    console.log(response)
-}
-
-const transferOrderToDelivery = async(order)=>{
-    console.log("tst order",order)
-    orderData.value = order
-    openDeliverModal.value = true
-}
-
-const delivering = ()=>{
-    console.log("Order is sent to delivery")
-}
-
-
-const delivered = async ()=>{
-    console.log('deliverd')
-}
-
 const getMedicineList = async()=>{
     const medicineList = await contractScm.methods.getUserMedicineList(accounts[0]).call();
     totalMedicine.value = medicineList.length
@@ -405,8 +267,8 @@ const getMedicineList = async()=>{
     colMedicine.value.push({key:'action',label:'Action'})
 }
 
-const getSupplierDetail = async ()=>{
-    const supplierDetails = await contractScm.methods.getSupplierDetails(accounts[0]).call();    userDetails.value.contact=supplierDetails.contact
+const getDistributorDetails = async ()=>{
+    const supplierDetails = await contractScm.methods.getDistributorDetails(accounts[0]).call();    userDetails.value.contact=supplierDetails.contact
     userDetails.value.email = supplierDetails.email
     userDetails.value.joinedDate = supplierDetails.joinedDate
     userDetails.value.location = supplierDetails.location
@@ -487,9 +349,8 @@ const viewManufatcurerDetails = async (id)=>{
 
 onBeforeMount(() => {
     myOrder()
-    orderListToMe()
     getMedicineList()
-    getSupplierDetail()
+    getDistributorDetails()
     getSupplierSoldMedicineList()
 })
 </script>

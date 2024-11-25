@@ -48,7 +48,7 @@
           </div>
           
           <div class="space-y-2 md:col-span-2">
-            <label for="manufacturerAddress" class="block text-sm font-medium text-gray-700">Supplier Address</label>
+            <label for="manufacturerAddress" class="block text-sm font-medium text-gray-700">Wallet Address</label>
             <input
               id="manufacturerAddress"
               v-model="formData.supplierAddress"
@@ -71,7 +71,7 @@ import { scmContract, scmAbi } from "../constants/constant.js"
 
 const web3 = new Web3('http://127.0.0.1:8545')
 const contractScm = new web3.eth.Contract(scmAbi,scmContract);
- const title = 'Add Supplier' 
+ const title = 'Register' 
   const formData = ref({
     name: '',
     location: '',
@@ -89,12 +89,12 @@ const addSupplier = async()=>{
     const txObject = {
       from: accounts[0],
       to: contractScm.options.address,  // Smart contract address
-      data: contractScm.methods.addSupplier(
-        formData.value.name,
-        formData.value.location,
-        formData.value.contact,
-        formData.value.email,
-        formData.value.supplierAddress
+      data: contractScm.methods.addShipper(
+          formData.value.name,
+          formData.value.supplierAddress,
+          formData.value.email,
+          formData.value.contact,
+        formData.value.location
       ).encodeABI(),  // ABI encoding of the method and parameters
     };
 

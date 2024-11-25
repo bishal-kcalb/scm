@@ -1,12 +1,14 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.25;
-// pragma optimizer;
 
+
+// SPDX-License-Identifier: MIT
+
+
+pragma solidity ^0.8.25;
 contract SupplyChain {
     address[] ManufacturerList;
     address[] SupplierList;
     address[] DistributorList;
-    // address[] ShipperList;
+    address[] ShipperList;
     uint256[] MedicineList;
     uint256 manufacturerId = 0;
     uint256 supplierId = 0;
@@ -22,7 +24,8 @@ contract SupplyChain {
         MOH,
         Manufacturer,
         Supplier,
-        Distributor
+        Distributor,
+        Shipper
         
     }
 
@@ -51,7 +54,6 @@ contract SupplyChain {
         string contact;
         string email;
         uint256 joinedDate;
-        address addedBy;
         address walletAddress;
         bool verified;
     }
@@ -106,17 +108,19 @@ contract SupplyChain {
 
     mapping(address => Role) UserRole;
     mapping(address => manufacturerDetails) ManufacturerDetails;
+    mapping(address => supplierDetails) SupplierDetails;
     mapping(uint256 => address) manufacturerAddress;
     mapping(uint256 => address) supplierAddress;
     mapping(address => address[]) manufacturerSupplierList;
     mapping(address => address[]) supplierManufacturerList;
-    mapping(address => supplierDetails) SupplierDetails;
     mapping (address => distributorDetail) DistributorDetails;
     mapping(address => delivery) ShipperDetails;
     mapping(address => string[]) ManufacturerCategory;
-    mapping(address => uint256[]) MedicineListInManufacturer;
-    mapping(address =>uint256[]) SoldMedicineListManufacturer;
-    mapping(address => mapping(address => uint256[])) supplierMedicineList;
+    // mapping(address => uint256[]) MedicineListInManufacturer;
+    // mapping(address =>uint256[]) SoldMedicineListManufacturer;
+    // mapping(address => uint256[]) supplierMedicineList;
+    mapping(address => uint256[]) UserMedicineList;
+    mapping(address => uint256[]) UserSoldMedicineList;
 
     mapping(uint256 => medicineDetails) MedicineDetails;
     mapping(uint256 => order) OrderDetail;
@@ -128,6 +132,7 @@ contract SupplyChain {
 
     function addShipper(string memory _name , address _walletAddress, string memory _email, string memory _contact, string memory _location) external {
         shipperId += 1;
+        UserRole[_walletAddress] = Role.Shipper;
         ShipperDetails[_walletAddress] = delivery({
             deliveryId: shipperId,
             name: _name,
@@ -138,7 +143,7 @@ contract SupplyChain {
             verified: false
         });
 
-        // ShipperList.push(_walletAddress);
+        ShipperList.push(_walletAddress);
     }
 
     function placeOrder(address _userAddress, uint256[] memory medArray)external{
@@ -166,6 +171,7 @@ contract SupplyChain {
     function transferForDeliver(address _shipperAddress,uint256 _orderId) external{
         require(msg.sender==OrderDetail[_orderId].orderTo,'you are not orderTo');
         OrderDetail[_orderId].shipper= _shipperAddress;
+        OrderDetail[_orderId].status = Status.Delivering;
         DeliveryOrderList[_shipperAddress].push(_orderId);
     }
 
@@ -257,7 +263,6 @@ contract SupplyChain {
             contact: _contact,
             email: _email,
             joinedDate: block.timestamp,
-            addedBy: msg.sender,
             walletAddress:_supplierAddress,
             verified: false
         });
@@ -306,7 +311,7 @@ contract SupplyChain {
         require(ManufacturerDetails[msg.sender].verified == true, "not verified");
         medicineId += 1;
         MedicineList.push(medicineId);
-        MedicineListInManufacturer[msg.sender].push(medicineId);
+        UserMedicineList[msg.sender].push(medicineId);
         MedicineDetails[medicineId] = medicineDetails({
             medId: medicineId,
             manufacturer: msg.sender,
@@ -323,9 +328,6 @@ contract SupplyChain {
         });
     }
 
-    function addShipper() external {
-
-    }
 
     function verifyManufacturer(address _id) external {
         require(msg.sender == MOH, "You are not the MOH");
@@ -342,78 +344,36 @@ contract SupplyChain {
         SupplierDetails[_address].verified = true;
     }
 
-    function sellMedToSupplier(address _supplierId, uint256 _medId) external {
-        // uint256 _id =  manufacturerAddress[msg.sender];
-        require(UserRole[msg.sender] == Role.Manufacturer || UserRole[msg.sender] == Role.Supplier || UserRole[msg.sender] == Role.Distributor, "not eligible");
-        require(MedicineDetails[_medId].owner == msg.sender, "not owner");
-        bool manufacturerExist = false;
-
-        for (
-            uint256 i = 0;
-            i < supplierManufacturerList[_supplierId].length;
-            i++
-        ) {
-            if (supplierManufacturerList[_supplierId][i] == msg.sender) {
-                manufacturerExist = true;
-                break;
-            }
-        }
-
-        if (!manufacturerExist) {
-            supplierManufacturerList[_supplierId].push(msg.sender);
-        }
-
-        for (
-            uint256 i = 0;
-            i < MedicineListInManufacturer[msg.sender].length;
-            i++
-        ) {
-            if (MedicineListInManufacturer[msg.sender][i] == _medId) {
-                MedicineListInManufacturer[msg.sender][
-                    i
-                ] = MedicineListInManufacturer[msg.sender][
-                    MedicineListInManufacturer[msg.sender].length - 1
-                ];
-                MedicineListInManufacturer[msg.sender].pop();
-                break;
-            }
-        }
-
-        supplierMedicineList[_supplierId][msg.sender].push(_medId);
-        SoldMedicineListManufacturer[msg.sender].push(_medId);
-        MedicineDetails[_medId].owner = _supplierId;
-    }
 
 
         function sellMedInBulk(address _address, uint256[] memory _medArray, uint256 _orderId ) internal {
-        // require(UserRole[msg.sender] == Role.Manufacturer || UserRole[msg.sender] == Role.Supplier || UserRole[msg.sender] == Role.Wholeseller, "not eligible");
-        // require(MedicineDetails[_medId].owner == msg.sender, "not owner");
         require(OrderDetail[_orderId].shipper == msg.sender,"not owner");
         for(uint256 i=0; i<_medArray.length; i++){
             require(MedicineDetails[_medArray[i]].owner == OrderDetail[_orderId].orderTo,"not owner");
-                    for (uint256 j = 0;j < MedicineListInManufacturer[msg.sender].length;j++) {
-                         if (MedicineListInManufacturer[msg.sender][j] == _medArray[i]) {
-                             MedicineListInManufacturer[msg.sender][j] = MedicineListInManufacturer[msg.sender][MedicineListInManufacturer[msg.sender].length - 1];
-                             MedicineListInManufacturer[msg.sender].pop();
+                    for (uint256 j = 0;j < UserMedicineList[OrderDetail[_orderId].orderTo].length;j++) {
+                         if (UserMedicineList[OrderDetail[_orderId].orderTo][j] == _medArray[i]) {
+                             UserMedicineList[OrderDetail[_orderId].orderTo][j] = UserMedicineList[OrderDetail[_orderId].orderTo][UserMedicineList[OrderDetail[_orderId].orderTo].length - 1];
+                             UserMedicineList[OrderDetail[_orderId].orderTo].pop();
                              break;
                           }
 
                      }
-             supplierMedicineList[_address][msg.sender].push(_medArray[i]);
-             SoldMedicineListManufacturer[msg.sender].push(_medArray[i]);
+             UserMedicineList[_address].push(_medArray[i]);
+             UserSoldMedicineList[OrderDetail[_orderId].orderTo].push(_medArray[i]);
              MedicineDetails[_medArray[i]].owner = _address;
         }
     }
 
     function deliverOrder(uint256 _orderId) external {
         require(msg.sender==OrderDetail[_orderId].shipper,'you are not shipper');
+        require(OrderDetail[_orderId].ordererVerification = true,"orderer has not verified the order");
         sellMedInBulk(OrderDetail[_orderId].orderer,OrderDetail[_orderId].medId,_orderId);
         OrderDetail[_orderId].status = Status.Delivered;
     }
 
-    function getManufacturerList() public view returns (address[] memory) {
-        return ManufacturerList;
-    }
+    // function getManufacturerList() public view returns (address[] memory) {
+    //     return ManufacturerList;
+    // }
 
     function getManufacturerDetails(address _manufacturerId)
         public
@@ -423,96 +383,123 @@ contract SupplyChain {
         return ManufacturerDetails[_manufacturerId];
     }
 
+    function getSupplierDetails(address _supplierAddress) public view returns(supplierDetails memory){
+        return SupplierDetails[_supplierAddress];
+    }
+
+    function getDistributorDetails( address _distributorAddress) public view returns(distributorDetail memory){
+        return DistributorDetails[_distributorAddress];
+    }
+
+    function getShipperDetails( address _shipperAddress ) public view returns(delivery memory){
+     return ShipperDetails[_shipperAddress];
+    }
+
     function getMedicineDetails(uint256 _medicineId, address _manufacturerId)
         public
         view
         returns (uint256[] memory, medicineDetails memory)
     {
         return (
-            MedicineListInManufacturer[_manufacturerId],
+            UserMedicineList[_manufacturerId],
             MedicineDetails[_medicineId]
         );
     }
 
 
-    function getManufacturerSupplierList(address _manufacturerId)
-        public
-        view
-        returns (supplierDetails[] memory)
-    {
-        supplierDetails[] memory allSuppliers = new supplierDetails[](
-            manufacturerSupplierList[_manufacturerId].length
-        );
+    // function getManufacturerSupplierList(address _manufacturerId)
+    //     public
+    //     view
+    //     returns (supplierDetails[] memory)
+    // {
+    //     supplierDetails[] memory allSuppliers = new supplierDetails[](
+    //         manufacturerSupplierList[_manufacturerId].length
+    //     );
 
-        for (
-            uint256 i = 0;
-            i < manufacturerSupplierList[_manufacturerId].length;
-            i++
-        ) {
-            allSuppliers[i] = SupplierDetails[
-                manufacturerSupplierList[_manufacturerId][i]
-            ];
-        }
+    //     for (
+    //         uint256 i = 0;
+    //         i < manufacturerSupplierList[_manufacturerId].length;
+    //         i++
+    //     ) {
+    //         allSuppliers[i] = SupplierDetails[
+    //             manufacturerSupplierList[_manufacturerId][i]
+    //         ];
+    //     }
 
-        return allSuppliers;
-    }
+    //     return allSuppliers;
+    // }
 
-    function getManufacturerMedicineList(address _id)
-        public
-        view
-        returns (medicineDetails[] memory)
-    {
-        // return MedicineListInManufacturer[_id];
-        medicineDetails[] memory allMedicine = new medicineDetails[](
-            MedicineListInManufacturer[_id].length
-        );
-        for (uint256 i = 0; i < MedicineListInManufacturer[_id].length; i++) {
-            allMedicine[i] = MedicineDetails[
-                MedicineListInManufacturer[_id][i]
-            ];
+    // function getManufacturerMedicineList(address _id)
+    //     public
+    //     view
+    //     returns (medicineDetails[] memory)
+    // {
+    
+    //     medicineDetails[] memory allMedicine = new medicineDetails[](
+    //         UserMedicineList[_id].length
+    //     );
+    //     for (uint256 i = 0; i < UserMedicineList[_id].length; i++) {
+    //         allMedicine[i] = MedicineDetails[
+    //             UserMedicineList[_id][i]
+    //         ];
+    //     }
+    //     return allMedicine;
+    // }
+
+    // function getManufacturerSoldMedicineList(address _id) public view returns(medicineDetails[] memory){
+    //     medicineDetails[] memory allSoldMedicine = new medicineDetails[](UserSoldMedicineList[_id].length);
+    //     for(uint256 i = 0; i<UserSoldMedicineList[_id].length; i++){
+    //         allSoldMedicine[i] = MedicineDetails[UserSoldMedicineList[_id][i]];
+    //     }
+
+    //     return  allSoldMedicine;
+    // }
+
+
+    // function getSupplierMedicineList(
+    //     address _supplierId
+    // ) public view returns (medicineDetails[] memory) {
+    //     medicineDetails[] memory allMedicine = new medicineDetails[](UserMedicineList[_supplierId].length);
+    //     for (uint256 i =0; i<UserMedicineList[_supplierId].length; i++){
+    //         allMedicine[i] = MedicineDetails[UserMedicineList[_supplierId][i]];
+    //     }
+    //     return allMedicine;
+    // }
+
+    function getUserMedicineList(address _userAddress) public view returns(medicineDetails[]memory){
+                medicineDetails[] memory allMedicine = new medicineDetails[](UserMedicineList[_userAddress].length);
+        for (uint256 i =0; i<UserMedicineList[_userAddress].length; i++){
+            allMedicine[i] = MedicineDetails[UserMedicineList[_userAddress][i]];
         }
         return allMedicine;
     }
 
-    function getManufacturerSoldMedicineList(address _id) public view returns(medicineDetails[] memory){
-        medicineDetails[] memory allSoldMedicine = new medicineDetails[](SoldMedicineListManufacturer[_id].length);
-        for(uint256 i = 0; i<SoldMedicineListManufacturer[_id].length; i++){
-            allSoldMedicine[i] = MedicineDetails[SoldMedicineListManufacturer[_id][i]];
+    function getUserSoldMedicineList(address _userAddress) public view returns(medicineDetails[] memory){
+                medicineDetails[] memory allSoldMedicine = new medicineDetails[](UserSoldMedicineList[_userAddress].length);
+        for(uint256 i = 0; i<UserSoldMedicineList[_userAddress].length; i++){
+            allSoldMedicine[i] = MedicineDetails[UserSoldMedicineList[_userAddress][i]];
         }
 
         return  allSoldMedicine;
     }
 
+    // function getSupplierManufacturerList(address _supplierId)
+    //     public
+    //     view
+    //     returns (manufacturerDetails[] memory)
+    // {
+    //     // supplierManufacturerList
+    //     manufacturerDetails[] memory allManufacturer = new manufacturerDetails[](supplierManufacturerList[_supplierId].length);
+    //     for (uint256 i = 0; i<supplierManufacturerList[_supplierId].length; i++){
+    //         allManufacturer[i] = ManufacturerDetails[supplierManufacturerList[_supplierId][i]];
+    //     }
 
-    function getSupplierMedicineList(
-        address _supplierId,
-        address _manufacturerId
-    ) public view returns (medicineDetails[] memory) {
-        // return supplierMedicineList[_supplierId][_manufacturerId];
-        medicineDetails[] memory allMedicine = new medicineDetails[](supplierMedicineList[_supplierId][_manufacturerId].length);
-        for (uint256 i =0; i<supplierMedicineList[_supplierId][_manufacturerId].length; i++){
-            allMedicine[i] = MedicineDetails[supplierMedicineList[_supplierId][_manufacturerId][i]];
-        }
-        return allMedicine;
-    }
+    //     return allManufacturer;
+    // }
 
-    function getSupplierManufacturerList(address _supplierId)
-        public
-        view
-        returns (manufacturerDetails[] memory)
-    {
-        // supplierManufacturerList
-        manufacturerDetails[] memory allManufacturer = new manufacturerDetails[](supplierManufacturerList[_supplierId].length);
-        for (uint256 i = 0; i<supplierManufacturerList[_supplierId].length; i++){
-            allManufacturer[i] = ManufacturerDetails[supplierManufacturerList[_supplierId][i]];
-        }
-
-        return allManufacturer;
-    }
-
-    function getSupplierList() public view returns (address[] memory) {
-        return SupplierList;
-    }
+    // function getSupplierList() public view returns (address[] memory) {
+    //     return SupplierList;
+    // }
 
     function getUserRole(address _user)
         public
@@ -531,6 +518,10 @@ contract SupplyChain {
 
         if(UserRole[_user] == Role.MOH){
             return("MOH", _user);
+        }
+
+        if(UserRole[_user] == Role.Shipper){
+            return("Shipper", _user);
         }
 
         return("User",_user);
@@ -570,6 +561,30 @@ contract SupplyChain {
         }
 
         return allSuppliers;
+    }
+
+    function getAllDistributorDetails() public view returns(distributorDetail[ ] memory){
+                distributorDetail[] memory allDistributor = new distributorDetail[](
+            DistributorList.length
+        );
+
+        for (uint256 i = 0; i < DistributorList.length; i++) {
+            allDistributor[i] = DistributorDetails[DistributorList[i]];
+        }
+
+        return allDistributor;
+    }
+
+    function getAllShipperDetails() public view returns(delivery [] memory){
+                delivery[] memory allShipper = new delivery[](
+            ShipperList.length
+        );
+
+        for (uint256 i = 0; i < ShipperList.length; i++) {
+            allShipper[i] = ShipperDetails[ShipperList[i]];
+        }
+
+        return allShipper;
     }
 
     function getAllMedicineDetails()

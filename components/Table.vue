@@ -13,7 +13,7 @@
         <UTable :columns="props.columns" :rows="filteredRows"
             :ui="{ th: { color: 'text-black' }, td: { color: 'text-black' }, tbody: 'divide-y divide-[#FF6600] dark:divide-[#FF6600]', divide: 'divide-y divide-[#FF6600] dark:divide-[#FF6600]' }">
             <template #action-data = "{row}">
-                <ButtonSecondary @click="tableFunc(row)" :title="props.buttonTitle"/>
+                <ButtonSecondary @click="row.buttonFunc(row)" :title="row.buttonTitle"/>
             </template>
         </UTable>
 
@@ -44,6 +44,18 @@ const props = defineProps({
     },
     tableFunc:{
         type:Function
+    },
+    transferDelivery:{
+        type:Function
+    },
+    acceptDelivery:{
+        type:Function
+    },
+    delivering:{
+        type:Function
+    },
+    delivered:{
+        type:Function
     }
 })
 
@@ -51,17 +63,34 @@ const page = ref(1)
 const pageCount = 5
 const q = ref('')
 
-const filteredRows = computed(() => {
-    if (!q.value) {
-        return props.td.slice((page.value - 1) * pageCount, (page.value) * pageCount)
-    }
 
-    return props.td.filter((person) => {
-        return Object.values(person).some((value) => {
-            return String(value).toLowerCase().includes(q.value.toLowerCase())
-        })
-    })
-})
+
+
+const filteredRows = computed(() => {
+    const rows = !q.value
+        ? props.td.slice((page.value - 1) * pageCount, page.value * pageCount)
+        : props.td.filter((person) =>
+            Object.values(person).some((value) =>
+                String(value).toLowerCase().includes(q.value.toLowerCase())
+            )
+        );
+
+    return rows.map((row) => ({
+        ...row,
+        buttonTitle: props.buttonTitle || // Use prop if provided
+            (Number(row.status) === 0 ? 'Accept Order' :
+             Number(row.status) === 1 ? 'Transfer For Deliver' :
+             Number(row.status) === 2 ? 'Delivering' :
+             Number(row.status) === 3 ? 'Delivered' : 'Unknown'),
+
+             buttonFunc: props.tableFunc || // Use a prop function if uniform
+            (Number(row.status) === 0 ? props.acceptDelivery :
+             Number(row.status) === 1 ? props.transferDelivery :
+             Number(row.status) === 2 ? props.delivering:
+             Number(row.status) === 3 ? props.delivered : null),
+    }));
+});
+
 
 
 onMounted(() => {
@@ -69,3 +98,4 @@ onMounted(() => {
 
 
 </script>
+
